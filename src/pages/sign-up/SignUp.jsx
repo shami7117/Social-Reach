@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/navbar/Navbar';
 import Footer from '../../components/footer/Footer';
 // import Wrapper from '../../components/shared/Wrapper';
@@ -15,7 +15,8 @@ import { collection, addDoc, doc, getDoc, setDoc } from "firebase/firestore";
 
 import {
     createUserWithEmailAndPassword,
-    FirebaseAuthException,
+    onAuthStateChanged,
+    sendEmailVerification
 } from "firebase/auth";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -25,7 +26,7 @@ const SignUp = () => {
     const navigate = useNavigate();
 
 
-
+    let user;
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -92,9 +93,6 @@ const SignUp = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Add your form submission logic here
-
-
 
         try {
             await validationSchema.validate(formData, { abortEarly: false });
@@ -106,32 +104,40 @@ const SignUp = () => {
                 formData.email,
                 formData.password
             );
-            const user = userCredential?.user;
+
+            user = userCredential?.user;
             console.log("userID", user?.uid);
+
+            // Send email verification
+            await sendEmailVerification(user);
+
             const collectionRef = collection(db, "Users");
             const docRef = doc(collectionRef, user?.uid);
 
+
+
+            // You can remove the automatic sign-in if you want to enforce email verification first
+            // await signInWithEmailAndPassword(auth, formData.email, formData.password);
+
+            notification.open({
+                type: "success",
+                message: "Please check your email for verification.",
+                placement: "top",
+            });
+
+            // Redirect user to another page or display a message instructing them to check their email  // Redirect user to another page or display a message instructing them to check their email
             const values = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
                 role: isUser ? "User" : "Manager",
             };
+
             await setDoc(docRef, values, { merge: true });
+            // Use onAuthStateChanged to listen for changes in authentication state
 
-            await signInWithEmailAndPassword(
-                auth,
-                formData.email,
-                formData.password
-            );
+            navigate('/sign-in');
 
-            notification.open({
-                type: "success",
-                message: "Successfully Registered!",
-                placement: "top",
-            });
-
-            navigate("/");
 
             setLoading(false);
         } catch (error) {
@@ -170,6 +176,18 @@ const SignUp = () => {
             }
         }
     };
+    // useEffect(() => {
+    //     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    //         if (user && user.emailVerified) {
+    //             navigate('/sign-in');
+    //         }
+    //     });
+
+    //     // Cleanup the listener when the component unmounts
+    //     return () => unsubscribe();
+    // }, [navigate]); 
+    // Add navigate to the dependencies
+
 
     return (
         <div>

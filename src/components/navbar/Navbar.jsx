@@ -4,9 +4,11 @@ import Wrapper from "../shared/Wrapper";
 import { useState } from "react";
 import AnimatedMenuIcon from "../shared/AnimatedMenuIcon";
 import { Link } from "react-router-dom";
+import { auth } from "../../Firebase/firebase.js"
 
 const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -17,6 +19,9 @@ const Navbar = () => {
                 setScrolled(false);
             }
         };
+
+
+
 
         window.addEventListener("scroll", handleScroll);
 
@@ -32,6 +37,37 @@ const Navbar = () => {
     const closeMenu = () => {
         setNav(false);
     };
+
+
+
+    let userId
+    try {
+        const user = auth.currentUser;
+        userId = user.uid;
+    } catch (error) {
+
+    }
+
+    useEffect(() => {
+        const userRole = localStorage.getItem('role')
+        console.log("ROLE in storage", userRole)
+
+
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            if (user) {
+                setIsLoggedIn(true);
+            } else {
+                setIsLoggedIn(false);
+            }
+        });
+
+        return () => {
+            // Unsubscribe from the listener when the component unmounts
+            unsubscribe();
+        };
+    }, []);
+
+
     return (
         <div
             className={` 
@@ -87,7 +123,7 @@ const Navbar = () => {
                                             <p className="a">Contact</p>
                                         </button>
                                     </a>
-                                    <Link to={'/dashboard'}>
+                                    {/* <Link to={'/dashboard'}>
 
                                         <button
 
@@ -95,14 +131,15 @@ const Navbar = () => {
                                         >
                                             <p className="a">Dashboard</p>
                                         </button>
-                                    </Link>
+                                    </Link> */}
                                 </ul>
                             </div>
                         </div>
                         {/* right */}
                         <div className="hidden md:flex items-center gap-5">
                             {/* sign in */}
-                            <div className="flex  items-center space-x-2 pl-2  ">
+
+                            {!isLoggedIn && <div className="flex  items-center space-x-2 pl-2  ">
                                 <Link to="/sign-in">
                                     <button style={{ background: "linear-gradient(180deg, #FF74C8 0%, #E744A6 100%)" }}
                                         className="font-[500] text-[18px] w-[119px] h-[50px] text-white rounded-md hover:scale-105 transition-all duration-300 ease-linear"
@@ -110,15 +147,22 @@ const Navbar = () => {
                                         Sign In
                                     </button>
                                 </Link>
-                            </div>
+                            </div>}
+
                             {/* start a project  */}
-                            <Link to="/sign-up">
+                            {isLoggedIn ? <Link to="/dashboard">
+                                <button
+                                    className="font-[500] text-[18px] z-20 w-[257px] h-[50px] rounded-md text-black hover:scale-105 transition-all duration-300 ease-linear border-[#1456BC] border-2"
+                                >
+                                    Dashboard
+                                </button>
+                            </Link> : <Link to="/sign-up">
                                 <button
                                     className="font-[500] text-[18px] z-20 w-[257px] h-[50px] rounded-md text-black hover:scale-105 transition-all duration-300 ease-linear border-[#1456BC] border-2"
                                 >
                                     Create a Free Account
                                 </button>
-                            </Link>
+                            </Link>}
                         </div>
 
                         {/* mobile menu  */}

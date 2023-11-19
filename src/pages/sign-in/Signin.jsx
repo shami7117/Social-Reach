@@ -102,7 +102,7 @@ const Signin = () => {
             });
 
             // router.push('/');
-            navigate("/")
+            navigate("/dashboard")
 
             setLoading(false);
 
@@ -218,32 +218,8 @@ const Signin = () => {
                                     </div>
 
                                 </div>
+                                <p className='text-gray-700 text-start mt-3 md:mt-0'>Forgot Password?  <Link to="/forgot" className='hover:underline text-[#012B6D]'>Reset here</Link> </p>
 
-                                {/* <div className="mb-5">
-                                    <label className="block text-gray-700 text-[16px] font-bold md:mt-0 mt-5 mb-4">User Type</label>
-                                    <div className="flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            id="user"
-                                            name="userType"
-                                            checked={isUser}
-                                            onChange={handleUserChange}
-                                            className='w-[20px] h-[20px] rounded'
-                                        />
-                                        <label htmlFor="user" className="ml-2">Signin as a User</label>
-                                    </div>
-                                    <div className="flex items-center mt-3">
-                                        <input
-                                            type="checkbox"
-                                            id="manager"
-                                            name="userType"
-                                            checked={isManager}
-                                            onChange={handleManagerChange}
-                                            className='w-[20px] h-[20px] rounded'
-                                        />
-                                        <label htmlFor="manager" className="ml-2">Signin as a Manager</label>
-                                    </div>
-                                </div> */}
 
                                 <div className="text-center md:text-left mt-10 md:mt-10">
                                     <button

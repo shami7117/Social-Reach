@@ -391,3 +391,7 @@
     background-position: left;
   }
 }
+
+.ant-btn-primary {
+  background-color: #012b6d !important;
+}

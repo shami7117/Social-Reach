@@ -3,6 +3,7 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import { Dropdown } from 'antd';
 import { FiMenu } from "react-icons/fi";
 import { BsEyeSlash } from 'react-icons/bs';
+import FacebookLoginButton from './Connect/Facebook.js';
 
 const Pages = () => {
     const [isCardHidden, setCardHidden] = useState(false);
@@ -43,7 +44,7 @@ const Pages = () => {
 
     useEffect(() => {
         if (isUntrack) {
-            setLastUpdated(new Date()); 
+            setLastUpdated(new Date());
             updateLastUpdated();
             const intervalId = setInterval(updateLastUpdated, 1000);
             return () => clearInterval(intervalId);
@@ -71,6 +72,73 @@ const Pages = () => {
             return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
         }
     };
+
+
+
+
+
+    const [longLivedToken, setLongLivedToken] = useState('');
+
+
+
+    const handleFacebookLogin = (facebookResponse) => {
+        // Use the Facebook response to get the Facebook access token
+        const facebookAccessToken = facebookResponse.accessToken;
+
+        if (facebookResponse.error) {
+            console.error('Facebook login error:', facebookResponse.error);
+        }
+
+        // Exchange the short-lived Facebook token for a long-lived token
+        const exchangeToken = async () => {
+            try {
+                const response = await fetch(
+                    `https://graph.facebook.com/v12.0/oauth/access_token?grant_type=fb_exchange_token&client_id=354456173920674&client_secret=0b86cec825699268dda9fc1d850cabc4&fb_exchange_token=${facebookAccessToken}`
+                );
+                const data = await response.json();
+
+                // Set the long-lived token in state
+                setLongLivedToken(data.access_token);
+
+                // TODO: Handle further steps, such as fetching user data or making additional API calls
+            } catch (error) {
+                console.error('Error exchanging Facebook token:', error);
+            }
+        };
+
+        exchangeToken();
+    };
+
+    useEffect(() => {
+        // You can use the long-lived token for further API calls or save it in your state or context
+        console.log('Long-lived Facebook token:', longLivedToken);
+    }, [longLivedToken]);
+
+
+    // In your React component
+
+    useEffect(() => {
+        // Perform additional actions when long-lived token changes
+        if (longLivedToken) {
+            // Example: Fetch user's additional data using the long-lived token
+            fetchUserData(longLivedToken);
+        }
+    }, [longLivedToken]);
+
+    const fetchUserData = async (token) => {
+        try {
+            const response = await fetch(
+                `https://graph.facebook.com/v12.0/me?fields=id,name,email&access_token=${token}`
+            );
+            const userData = await response.json();
+            console.log('User data:', userData);
+            // TODO: Update state or UI with additional user data
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        }
+    };
+
+
 
     return (
         <DashboardLayout>
@@ -123,9 +191,10 @@ const Pages = () => {
                                 <button className='hover:bg-transparent border border-transparent hover:border-[#FF5FC0] transition-all duration-300 ease-in hover:text-[#FF5FC0]  w-[135px] h-[35px] bg-[#FF5FC0] rounded-md text-white font-[400] md:font-[500]'>
                                     Open Pages
                                 </button>
-                                <button className='w-[210px] h-[35px] rounded-md text-white font-[400] md:font-[500] hover:bg-transparent border border-transparent hover:border-[#012B6D] transition-all duration-300 ease-in hover:text-[#012B6D] bg-[#012B6D]'>
-                                    Connect Your Facebook
-                                </button>
+
+                                {/* <button className='w-[210px] h-[35px] rounded-md text-white font-[400] md:font-[500] hover:bg-transparent border border-transparent hover:border-[#012B6D] transition-all duration-300 ease-in hover:text-[#012B6D] bg-[#012B6D]'> */}
+                                <FacebookLoginButton onFacebookLogin={handleFacebookLogin} />
+                                {/* </button> */}
                             </div>
 
                         </div>
@@ -133,7 +202,7 @@ const Pages = () => {
                     <p className={`${isUntrack ? 'block' : 'hidden'}`}>
                         You are not tracking any pages right now.
                     </p>
-                  
+
                 </div>
                 <div className='flex flex-col justify-start items-start gap-3 w-full bg-white rounded-md px-5 md:px-10 py-6' style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}>
                     <div className='flex items-center gap-3'>
@@ -163,7 +232,7 @@ const Pages = () => {
                         </div>
                         {isCardHidden ? (
                             <p>
-                                 No Pages found.
+                                No Pages found.
                             </p>
                         ) : (
                             <div className='pt-5'>

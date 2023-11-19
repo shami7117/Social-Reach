@@ -78,6 +78,7 @@ import FaqManager from "./pages/manager/faq/FaqDashboard";
 import ContactManager from "./pages/manager/contact/ContactDash";
 import PrivacyManager from "./pages/manager/privacy-policy/Privacy";
 import TermsManager from "./pages/manager/terms-service/Terms";
+import Forgot from "./pages/forgot/index"
 
 function App() {
   return (
@@ -86,6 +87,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/sign-in" element={<Signin />} />
+        <Route path="/forgot" element={<Forgot />} />
         <Route path="/contact-us" element={<Contact />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/dashboard/group" element={<Group />} />
@@ -161,8 +163,8 @@ function App() {
           element={<TemplateInstagramManager />}
         />
         <Route path="/manager/instagramtemplate/post" element={<Post2Manager />} />
-      
-        <Route path="/Manager" element={<ManagerMain/>} />
+
+        <Route path="/Manager" element={<ManagerMain />} />
         <Route
           path="/manager/imagegallery/image-gallery"
           element={<ImageGalleryManager />}
